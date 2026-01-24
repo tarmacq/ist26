@@ -311,84 +311,88 @@
         </div>
     </footer>
 
-    <script>
+   <script>
         // --- SUPABASE & AUTH CONFIGURATION ---
-// --- SUPABASE & AUTH CONFIGURATION ---
-const SUPABASE_URL = 'https://ulhwmqhxppuhqtoujmum.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_F0QWv6J1ienKfeJSmHPX8Q_BcSVNQX3';
+        const SUPABASE_URL = 'https://ulhwmqhxppuhqtoujmum.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_F0QWv6J1ienKfeJSmHPX8Q_BcSVNQX3';
 
-    let supabaseClient;
+        let supabaseClient;
 
-    // Wait for everything to load safely
-    document.addEventListener('DOMContentLoaded', () => {
-        initSupabase();
-        setupRedirects();
-    });
+        document.addEventListener('DOMContentLoaded', () => {
+            initSupabase();
+        });
 
-    function initSupabase() {
-        if (typeof supabase !== 'undefined') {
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            checkUser();
-        } else {
-            setTimeout(initSupabase, 100);
+        function initSupabase() {
+            if (typeof supabase !== 'undefined') {
+                // Initialize with detectSessionInUrl: true so it catches the # data from auth site
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+                    auth: {
+                        detectSessionInUrl: true,
+                        persistSession: true,
+                        autoRefreshToken: true
+                    }
+                });
+                checkUser();
+            } else {
+                setTimeout(initSupabase, 100);
+            }
         }
-    }
 
-    // This function handles the redirect to auth.tarmacq.com
-    function setupRedirects() {
-        const loginBtn = document.getElementById('login-btn');
-        if (loginBtn) {
-            loginBtn.addEventListener('click', () => {
-                window.location.href = 'https://auth.tarmacq.com';
+        function updateUI(user) {
+            // Updated to match your HTML structure
+            const authContainer = document.getElementById('auth-container');
+            const userProfile = document.getElementById('user-profile');
+            const profilePic = document.getElementById('profile-pic');
+            const profileName = document.getElementById('profile-name');
+
+            if (!user || !userProfile) return;
+
+            // Hide the Register button inside the container, show the profile
+            const regBtn = authContainer.querySelector('button');
+            if (regBtn) regBtn.classList.add('hidden');
+            
+            userProfile.classList.remove('hidden');
+            
+            const fullName = user.user_metadata?.full_name || user.email.split('@')[0];
+            profileName.textContent = fullName;
+
+            const avatarUrl = user.user_metadata?.avatar_url || 
+                              `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=00ff88&color=000&bold=true`;
+            profilePic.src = avatarUrl;
+        }
+
+        async function checkUser() {
+            if (!supabaseClient) return;
+
+            // 1. Check if we have a session (either in local storage or just arrived in the URL)
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
+            
+            if (session) {
+                updateUI(session.user);
+                // Clean up the URL so the long token string isn't visible in the address bar
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            // 2. Listen for any future changes
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session) {
+                    updateUI(session.user);
+                }
+                if (event === 'SIGNED_OUT') {
+                    location.reload(); // Refresh to show register button again
+                }
             });
         }
-    }
-
-    function updateUI(user) {
-        const loginBtn = document.getElementById('login-btn');
-        const userProfile = document.getElementById('user-profile');
-        const profilePic = document.getElementById('profile-pic');
-        const profileName = document.getElementById('profile-name');
-
-        if (!user || !loginBtn || !userProfile) return;
-
-        loginBtn.classList.add('hidden');
-        userProfile.classList.remove('hidden');
-        
-        const fullName = user.user_metadata?.full_name || user.email.split('@')[0];
-        profileName.textContent = fullName;
-
-        const avatarUrl = user.user_metadata?.avatar_url || 
-                          `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=00ff88&color=000&bold=true`;
-        profilePic.src = avatarUrl;
-    }
-
-    async function checkUser() {
-        if (!supabaseClient) return;
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session) updateUI(session.user);
-
-        supabaseClient.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) updateUI(session.user);
-            if (event === 'SIGNED_OUT') {
-                document.getElementById('login-btn')?.classList.remove('hidden');
-                document.getElementById('user-profile')?.classList.add('hidden');
-            }
-        });
-    }
-
 
         // --- GSAP ANIMATIONS ---
         gsap.registerPlugin(ScrollTrigger);
 
-        // Hero Sequence
-        const tl = gsap.timeline();
+        const tl = gsap.timeline({ paused: true });
         tl.to("#hero-tag", { opacity: 1, y: -10, duration: 1, delay: 0.5 })
           .to("#hero-title", { opacity: 1, y: 0, duration: 1 }, "-=0.5")
           .to("#hero-desc", { opacity: 1, y: 0, duration: 1 }, "-=0.8")
           .to("#hero-stats", { opacity: 1, y: 0, duration: 1 }, "-=0.8");
 
-        // Fixed Axes Animation
         gsap.to(".glass-card", {
             scrollTrigger: {
                 trigger: "#axes",
@@ -407,14 +411,14 @@ const SUPABASE_URL = 'https://ulhwmqhxppuhqtoujmum.supabase.co';
                 opacity: 0,
                 duration: 0.8,
                 onComplete: () => {
-                    document.getElementById("loader-wrapper").style.display = "none";
+                    const loader = document.getElementById("loader-wrapper");
+                    if(loader) loader.style.display = "none";
                     document.body.style.overflowY = "auto";
-                    tl.play(); // Start the hero animation after loader is gone
+                    tl.play(); 
                 }
             });
         });
 
-        // Smooth reveal for sections
         gsap.from("#about h2, #about p", {
             scrollTrigger: { trigger: "#about", start: "top 80%" },
             opacity: 0, x: -30, duration: 1, stagger: 0.2
