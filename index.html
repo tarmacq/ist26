@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" translate="no" class="notranslate">
 <head>
     <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ist26</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -63,7 +64,10 @@
         @keyframes shine { to { background-position: 300% center; } }
         .glass-card {
             background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px); opacity: 0; transform: translateY(30px);
+            backdrop-filter: blur(20px); 
+        }
+        .glass-card-anim {
+            opacity: 0; transform: translateY(30px);
         }
         .pulse-button {
             background: white; color: black; font-weight: 700;
@@ -77,6 +81,18 @@
             100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
         }
         .pulse-button:hover { background: var(--accent); transform: scale(1.05); }
+
+        /* Secondary Pulse for Submit Button (Blue variant) */
+        .pulse-button-blue {
+            background: #0066ff; color: white;
+            box-shadow: 0 0 0 0 rgba(0, 102, 255, 0.4);
+        }
+        .pulse-button-blue:hover { background: #0052cc; transform: scale(1.05); }
+        @keyframes pulse-blue {
+            0% { box-shadow: 0 0 0 0 rgba(0, 102, 255, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(0, 102, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 102, 255, 0); }
+        }
     </style>
 </head>
 <body>
@@ -153,18 +169,22 @@
             <div class="hidden lg:flex gap-8 text-[10px] uppercase tracking-[0.3em] font-medium text-zinc-400">
                 <a href="#about" class="hover:text-white transition">Concept</a>
                 <a href="#axes" class="hover:text-white transition">Focus Areas</a>
-                <a href="#location" class="hover:text-white transition">Venue</a>
+                <a href="#submission" class="hover:text-white transition">Submit</a>
             </div>
             
             <div id="auth-container">
-<button onclick="window.location.href = 'https://auth.tarmacq.com/distribution/services/ist.tarmacq.com'" class="pulse-button px-6 py-2 rounded-full text-xs uppercase tracking-widest">Register</button>
-</button>
-                <div id="user-profile" class="hidden flex items-center gap-3 bg-zinc-900/50 pr-4 pl-1 py-1 rounded-full border border-white/10">
+                <button onclick="window.location.href = 'https://auth.tarmacq.com/distribution/services/ist.tarmacq.com'" class="pulse-button px-6 py-2 rounded-full text-xs uppercase tracking-wide">Login/Register</button>
+                
+                <div id="user-profile" class="hidden flex items-center gap-3 bg-zinc-900/50 pr-4 pl-1 py-1 rounded-full border border-white/10 group relative">
                     <img id="profile-pic" src="" alt="User" class="w-8 h-8 rounded-full border border-[#00ff88] object-cover">
                     <div class="flex flex-col">
                         <span id="profile-name" class="text-xs font-bold text-white leading-none"></span>
                         <span class="text-[8px] text-[#00ff88] tracking-wider uppercase leading-none mt-1">Attending</span>
                     </div>
+                    <div class="w-[1px] h-6 bg-white/10 mx-1"></div>
+                    <button onclick="logout()" class="text-[10px] uppercase font-bold text-zinc-500 hover:text-red-500 transition-colors" title="Log out">
+                        Log out
+                    </button>
                 </div>
             </div>
 
@@ -221,34 +241,54 @@
             </div>
 
             <div class="grid md:grid-cols-2 gap-6">
-                <div class="glass-card p-12 rounded-2xl relative overflow-hidden group">
+                <div class="glass-card glass-card-anim p-12 rounded-2xl relative overflow-hidden group">
                     <span class="absolute -top-4 -right-4 text-white/5 font-bold text-9xl group-hover:text-[#00ff88]/10 transition duration-700">01</span>
                     <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
                         <span class="w-8 h-[1px] bg-[#00ff88]"></span> Rural Dynamics
                     </h3>
                     <p class="text-zinc-400 text-sm leading-relaxed">Revitalizing territories, identifying assets, and modeling agricultural and land dynamics using AI to counter the loss of attractiveness.</p>
                 </div>
-                <div class="glass-card p-12 rounded-2xl relative overflow-hidden group">
+                <div class="glass-card glass-card-anim p-12 rounded-2xl relative overflow-hidden group">
                     <span class="absolute -top-4 -right-4 text-white/5 font-bold text-9xl group-hover:text-[#0066ff]/10 transition duration-700">02</span>
                     <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
                         <span class="w-8 h-[1px] bg-[#0066ff]"></span> Smart Cities
                     </h3>
                     <p class="text-zinc-400 text-sm leading-relaxed">Optimizing network organization, planning land use, and steering policies for mobility and inclusive housing.</p>
                 </div>
-                <div class="glass-card p-12 rounded-2xl relative overflow-hidden group">
+                <div class="glass-card glass-card-anim p-12 rounded-2xl relative overflow-hidden group">
                     <span class="absolute -top-4 -right-4 text-white/5 font-bold text-9xl group-hover:text-[#00ff88]/10 transition duration-700">03</span>
                     <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
                         <span class="w-8 h-[1px] bg-[#00ff88]"></span> Climate & Forecasting
                     </h3>
                     <p class="text-zinc-400 text-sm leading-relaxed">Cross-referencing climate and environmental data to model risks (floods, drought) and adapt territories accordingly.</p>
                 </div>
-                <div class="glass-card p-12 rounded-2xl relative overflow-hidden group">
+                <div class="glass-card glass-card-anim p-12 rounded-2xl relative overflow-hidden group">
                     <span class="absolute -top-4 -right-4 text-white/5 font-bold text-9xl group-hover:text-[#0066ff]/10 transition duration-700">04</span>
                     <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
                         <span class="w-8 h-[1px] bg-[#0066ff]"></span> Resource Management
                     </h3>
                     <p class="text-zinc-400 text-sm leading-relaxed">Precise diagnostics and sustainable management models for water, soil, and biodiversity in the face of current pressures.</p>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="submission" class="py-32 px-6 md:px-12 border-t border-zinc-900 bg-zinc-900/20">
+        <div class="max-w-5xl mx-auto text-center">
+            <h2 class="text-xs uppercase tracking-[0.5em] text-[#0066ff] mb-4 italic">Call for Abstracts</h2>
+            
+            <div class="glass-card p-12 md:p-16 rounded-3xl relative overflow-hidden">
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-1/2 bg-[#0066ff]/10 blur-[100px] -z-10"></div>
+                
+                <h3 class="text-4xl md:text-6xl font-bold tracking-tighter mb-8">Share your <span class="italic text-[#0066ff]">Research.</span></h3>
+                <p class="text-zinc-300 mb-10 text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed">
+                    We invite researchers and professionals to submit abstracts aligning with our four strategic pillars. 
+                    Contribute to the future of spatial intelligence in Algeria.
+                </p>
+                
+                <button onclick="handleSubmissionClick()" class="pulse-button text-lg md:text-xl px-12 py-5 rounded-full uppercase tracking-widest transition-all">
+                    Submit Abstract
+                </button>
             </div>
         </div>
     </section>
@@ -311,7 +351,7 @@
         </div>
     </footer>
 
-   <script>
+    <script>
         // --- SUPABASE & AUTH CONFIGURATION ---
         const SUPABASE_URL = 'https://ulhwmqhxppuhqtoujmum.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_F0QWv6J1ienKfeJSmHPX8Q_BcSVNQX3';
@@ -338,17 +378,44 @@
             }
         }
 
-        function updateUI(user) {
-            // Updated to match your HTML structure
+        async function logout() {
+            if(!supabaseClient) return;
+            const { error } = await supabaseClient.auth.signOut();
+            if(!error) {
+                window.location.reload();
+            }
+        }
+
+        // --- NEW SUBMISSION BUTTON LOGIC ---
+        async function handleSubmissionClick() {
+            if(!supabaseClient) {
+                // Fallback if supabase isn't loaded yet
+                window.location.href = 'https://auth.tarmacq.com/distribution/services/ist.tarmacq.com?page=submit';
+                return;
+            }
+
+            const { data: { session } } = await supabaseClient.auth.getSession();
+
+            if (session) {
+                // User is logged in -> Go to submit page
+                window.location.href = '/submit';
+            } else {
+                // User is NOT logged in -> Go to Auth with param
+                window.location.href = 'https://auth.tarmacq.com/distribution/services/ist.tarmacq.com?page=submit';
+            }
+        }
+
+        async function updateUI(user) {
             const authContainer = document.getElementById('auth-container');
             const userProfile = document.getElementById('user-profile');
             const profilePic = document.getElementById('profile-pic');
             const profileName = document.getElementById('profile-name');
+            const statusLabel = userProfile.querySelector('span:last-child'); // The "Attending" label
 
             if (!user || !userProfile) return;
 
-            // Hide the Register button inside the container, show the profile
-            const regBtn = authContainer.querySelector('button');
+            // Hide the Register button
+            const regBtn = authContainer.querySelector('button.pulse-button');
             if (regBtn) regBtn.classList.add('hidden');
             
             userProfile.classList.remove('hidden');
@@ -359,28 +426,42 @@
             const avatarUrl = user.user_metadata?.avatar_url || 
                               `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=00ff88&color=000&bold=true`;
             profilePic.src = avatarUrl;
+
+            // --- THE SUBMISSION CHECK ---
+            // Check if this specific user has a row in your 'submissions' table
+            const { data, error } = await supabaseClient
+                .from('submissions') // Ensure your table is named 'submissions'
+                .select('id')
+                .eq('user_id', user.id)
+                .single();
+
+            if (data) {
+                // User HAS submitted
+                statusLabel.textContent = "Attending";
+                statusLabel.className = "text-[8px] text-[#00ff88] tracking-wider uppercase leading-none mt-1";
+            } else {
+                // User HAS NOT submitted yet
+                statusLabel.textContent = "Registered";
+                statusLabel.className = "text-[8px] text-zinc-500 tracking-wider uppercase leading-none mt-1";
+            }
         }
 
         async function checkUser() {
             if (!supabaseClient) return;
 
-            // 1. Check if we have a session (either in local storage or just arrived in the URL)
-            const { data: { session }, error } = await supabaseClient.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
             
             if (session) {
                 updateUI(session.user);
-                // Clean up the URL so the long token string isn't visible in the address bar
-                window.history.replaceState({}, document.title, window.location.pathname);
+                // Clean URL
+                if(window.location.hash) {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
             }
 
-            // 2. Listen for any future changes
             supabaseClient.auth.onAuthStateChange((event, session) => {
-                if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session) {
-                    updateUI(session.user);
-                }
-                if (event === 'SIGNED_OUT') {
-                    location.reload(); // Refresh to show register button again
-                }
+                if (session) updateUI(session.user);
+                if (event === 'SIGNED_OUT') location.reload();
             });
         }
 
@@ -393,7 +474,7 @@
           .to("#hero-desc", { opacity: 1, y: 0, duration: 1 }, "-=0.8")
           .to("#hero-stats", { opacity: 1, y: 0, duration: 1 }, "-=0.8");
 
-        gsap.to(".glass-card", {
+        gsap.to(".glass-card-anim", {
             scrollTrigger: {
                 trigger: "#axes",
                 start: "top 70%",
