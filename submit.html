@@ -158,17 +158,39 @@
             });
         });
 
-        function initSupabase() {
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+function initSupabase() {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
                 auth: { detectSessionInUrl: true, persistSession: true }
             });
+
+            // Listen for Supabase to finish parsing the URL or loading local storage
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+                    if (session) {
+                        currentUser = session.user;
+                        fillUserData(currentUser);
+                        
+                        // Optional: Clean up the URL so the messy tokens disappear
+                        if (window.location.hash) {
+                            window.history.replaceState(null, null, window.location.pathname);
+                        }
+                    }
+                }
+            });
+
             checkAuth();
         }
 
         async function checkAuth() {
+            // CRITICAL FIX: If there are tokens in the URL, do NOT redirect. 
+            // Let the onAuthStateChange listener above handle it.
+            if (window.location.hash.includes('access_token')) {
+                return;
+            }
+
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) {
-                // If not logged in, send them back to the auth link you provided
+                // If not logged in and no token in URL, send them to auth
                 window.location.href = 'https://auth.tarmacq.com/distribution/services/ist.tarmacq.com?page=submit';
                 return;
             }
