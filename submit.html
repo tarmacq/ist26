@@ -28,18 +28,11 @@
             align-items: center; justify-content: center;
         }
         .pl { display: block; width: 9.375em; height: 9.375em; }
-        .pl__arrows, .pl__ring-rotate, .pl__ring-stroke, .pl__tick {
-            animation-duration: 2s; animation-timing-function: linear; animation-iteration-count: infinite;
-        }
-        .pl__arrows { animation-name: arrows42; transform: rotate(45deg); transform-origin: 16px 52px; }
         .pl__ring-rotate, .pl__ring-stroke { transform-origin: 80px 80px; }
-        .pl__ring-rotate { animation-name: ringRotate42; }
-        .pl__ring-stroke { animation-name: ringStroke42; transform: rotate(-45deg); }
-        .pl__tick { animation-name: tick42; }
-        @keyframes arrows42 { from { transform: rotate(45deg); } to { transform: rotate(405deg); } }
+        .pl__ring-rotate { animation: ringRotate42 2s linear infinite; }
+        .pl__ring-stroke { animation: ringStroke42 2s linear infinite; transform: rotate(-45deg); }
         @keyframes ringRotate42 { from { transform: rotate(0); } to { transform: rotate(720deg); } }
         @keyframes ringStroke42 { from, to { stroke-dashoffset: 452; transform: rotate(-45deg); } 50% { stroke-dashoffset: 169.5; transform: rotate(-180deg); } }
-        @keyframes tick42 { from, 3%, 47%, to { stroke-dashoffset: -12; } 14%, 36% { stroke-dashoffset: 0; } }
 
         .mesh {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -67,6 +60,13 @@
             background: #0066ff; color: white; font-weight: 700;
             box-shadow: 0 0 0 0 rgba(0, 102, 255, 0.4);
             animation: pulse-blue 2s infinite; transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .pulse-button-blue:hover:not(:disabled) { 
+            background: #0052cc; transform: scale(1.05); 
+        }
+        .pulse-button-blue:disabled {
+            opacity: 0.5; animation: none; cursor: not-allowed;
         }
         @keyframes pulse-blue {
             0% { box-shadow: 0 0 0 0 rgba(0, 102, 255, 0.4); }
@@ -88,9 +88,17 @@
         <a href="/" class="flex items-center gap-4">
             <img src="https://ist.tarmacq.com/ist logo off (1).png" alt="ist26 Logo" class="h-12 w-auto">
         </a>
-        <div id="user-profile" class="hidden flex items-center gap-3 bg-zinc-900/50 pr-4 pl-1 py-1 rounded-full border border-white/10">
-            <img id="profile-pic" src="" alt="User" class="w-8 h-8 rounded-full border border-[#00ff88] object-cover">
-            <span id="profile-name" class="text-xs font-bold text-white"></span>
+        
+        <div id="user-profile" class="hidden flex items-center gap-3 bg-zinc-900/50 pr-4 pl-1 py-1 rounded-full border border-white/10 group relative">
+            <img id="profile-pic" src="" alt="User" class="w-8 h-8 rounded-full border border-[#0066ff] object-cover">
+            <div class="flex flex-col">
+                <span id="profile-name" class="text-xs font-bold text-white leading-none"></span>
+                <span class="text-[8px] text-[#0066ff] tracking-wider uppercase leading-none mt-1">Submitter</span>
+            </div>
+            <div class="w-[1px] h-6 bg-white/10 mx-1"></div>
+            <button onclick="logout()" class="text-[10px] uppercase font-bold text-zinc-500 hover:text-red-500 transition-colors" title="Log out">
+                Log out
+            </button>
         </div>
     </nav>
 
@@ -101,7 +109,9 @@
                 <p class="text-zinc-400 text-lg font-light">Please fill in the details of your research contribution.</p>
             </div>
 
-            <div id="submission-card" class="glass-card p-8 md:p-12 rounded-3xl opacity-0 translate-y-10">
+            <div id="submission-card" class="glass-card p-8 md:p-12 rounded-3xl opacity-0 translate-y-10 relative overflow-hidden">
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-1/2 bg-[#0066ff]/10 blur-[100px] -z-10"></div>
+                
                 <form id="abstract-form" class="space-y-8">
                     <div class="grid md:grid-cols-2 gap-6">
                         <div class="space-y-2">
@@ -122,17 +132,17 @@
                     <div class="space-y-2">
                         <label class="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold ml-1">Upload Abstract (PDF)</label>
                         <div class="relative">
-                            <input type="file" id="abstract_file" accept=".pdf" required class="w-full px-6 py-12 rounded-xl border-2 border-dashed border-white/10 bg-white/5 hover:bg-white/10 transition-all cursor-pointer text-center file:hidden">
-                            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none" id="file-label">
-                                <span class="text-sm text-zinc-400">Click or drag your PDF here</span>
-                                <span class="text-[10px] text-zinc-600 mt-2 uppercase">Max size: 10MB</span>
+                            <input type="file" id="abstract_file" accept=".pdf" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="w-full px-6 py-12 rounded-xl border-2 border-dashed border-white/10 bg-white/5 hover:bg-white/10 transition-all text-center relative z-0" id="file-label-container">
+                                <span class="text-sm text-zinc-400 block" id="file-label-text">Click or drag your PDF here</span>
+                                <span class="text-[10px] text-zinc-600 mt-2 uppercase block">Max size: 10MB</span>
                             </div>
                         </div>
                     </div>
 
                     <div id="status-msg" class="hidden p-4 rounded-xl text-sm font-medium"></div>
 
-                    <button type="submit" id="submit-btn" class="w-full pulse-button-blue py-5 rounded-xl uppercase tracking-[0.2em] text-sm">
+                    <button type="submit" id="submit-btn" class="w-full pulse-button-blue py-5 rounded-xl uppercase tracking-[0.2em] text-sm mt-4">
                         Submit Research
                     </button>
                 </form>
@@ -143,8 +153,10 @@
     <script>
         const SUPABASE_URL = 'https://ulhwmqhxppuhqtoujmum.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_F0QWv6J1ienKfeJSmHPX8Q_BcSVNQX3';
+        const WEB3FORMS_KEY = '6b0ff2dd-10e6-4bb2-abd5-6f34f2031ec3';
+        
         let supabaseClient;
-        let currentUser;
+        let currentUser = null; // Explicitly initialized to prevent reading undefined
 
         document.addEventListener('DOMContentLoaded', () => {
             initSupabase();
@@ -154,27 +166,29 @@
             const fileInput = document.getElementById('abstract_file');
             fileInput.addEventListener('change', (e) => {
                 const name = e.target.files[0]?.name || "Click or drag your PDF here";
-                document.getElementById('file-label').innerHTML = `<span class="text-[#00ff88]">${name}</span>`;
+                document.getElementById('file-label-text').innerHTML = `<span class="text-[#00ff88]">${name}</span>`;
+                document.getElementById('file-label-container').classList.add('border-[#00ff88]');
             });
         });
 
-function initSupabase() {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+        function initSupabase() {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
                 auth: { detectSessionInUrl: true, persistSession: true }
             });
 
-            // Listen for Supabase to finish parsing the URL or loading local storage
+            // Listen for auth state changes (fixes the redirect loop and 403 loading)
             supabaseClient.auth.onAuthStateChange((event, session) => {
                 if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
                     if (session) {
                         currentUser = session.user;
                         fillUserData(currentUser);
-                        
-                        // Optional: Clean up the URL so the messy tokens disappear
                         if (window.location.hash) {
                             window.history.replaceState(null, null, window.location.pathname);
                         }
                     }
+                } else if (event === 'SIGNED_OUT') {
+                    currentUser = null;
+                    window.location.href = 'https://auth.tarmacq.com/distribution/services/ist.tarmacq.com?page=submit';
                 }
             });
 
@@ -182,15 +196,12 @@ function initSupabase() {
         }
 
         async function checkAuth() {
-            // CRITICAL FIX: If there are tokens in the URL, do NOT redirect. 
-            // Let the onAuthStateChange listener above handle it.
-            if (window.location.hash.includes('access_token')) {
-                return;
-            }
+            // Prevent redirecting if tokens are currently in the URL
+            if (window.location.hash.includes('access_token')) return;
 
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (!session) {
-                // If not logged in and no token in URL, send them to auth
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
+            
+            if (error || !session) {
                 window.location.href = 'https://auth.tarmacq.com/distribution/services/ist.tarmacq.com?page=submit';
                 return;
             }
@@ -199,11 +210,25 @@ function initSupabase() {
         }
 
         function fillUserData(user) {
-            document.getElementById('full_name').value = user.user_metadata?.full_name || '';
+            if (!user) return;
+            
+            const fullName = user.user_metadata?.full_name || user.email.split('@')[0];
+            const avatarUrl = user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=0066ff&color=fff&bold=true`;
+
+            // Populate Form Fields
+            document.getElementById('full_name').value = fullName;
             document.getElementById('email').value = user.email || '';
-            document.getElementById('profile-name').textContent = user.user_metadata?.full_name || user.email.split('@')[0];
-            document.getElementById('profile-pic').src = user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${user.email}`;
+            
+            // Populate Navbar Profile
+            document.getElementById('profile-name').textContent = fullName;
+            document.getElementById('profile-pic').src = avatarUrl;
             document.getElementById('user-profile').classList.remove('hidden');
+        }
+
+        async function logout() {
+            if(!supabaseClient) return;
+            await supabaseClient.auth.signOut();
+            // The onAuthStateChange listener will handle the redirect
         }
 
         // FORM SUBMISSION LOGIC
@@ -214,14 +239,21 @@ function initSupabase() {
             const file = document.getElementById('abstract_file').files[0];
             const title = document.getElementById('abstract_title').value;
 
+            // FIX for the crash: Ensure user is loaded before trying to access ID
+            if (!currentUser || !currentUser.id) {
+                msg.textContent = "Authentication error. Please refresh the page.";
+                msg.className = "p-4 rounded-xl text-sm font-medium bg-red-500/10 text-red-500 block";
+                return;
+            }
+
             btn.disabled = true;
             btn.textContent = "Processing...";
             msg.className = "hidden";
 
             try {
-                // 1. Upload File to Storage
+                // 1. Upload File to Supabase Storage
                 const fileName = `${Date.now()}-${file.name}`;
-                const filePath = `${currentUser.id}/${fileName}`; // Folder is User ID
+                const filePath = `${currentUser.id}/${fileName}`; 
 
                 const { data: uploadData, error: uploadError } = await supabaseClient.storage
                     .from('abstracts')
@@ -234,7 +266,24 @@ function initSupabase() {
                     .from('abstracts')
                     .getPublicUrl(filePath);
 
-                // 3. Save to Submissions Table
+                // 3. Send Data to Web3Forms
+                const formData = new FormData();
+                formData.append("access_key", WEB3FORMS_KEY);
+                formData.append("name", document.getElementById('full_name').value);
+                formData.append("email", document.getElementById('email').value);
+                formData.append("subject", `New Abstract Submission: ${title}`);
+                formData.append("Research_Title", title);
+                formData.append("Abstract_File_URL", publicUrl);
+
+                const web3Response = await fetch("https://api.web3forms.com/submit", {
+                    method: "POST",
+                    body: formData
+                });
+                
+                const web3Result = await web3Response.json();
+                if (!web3Result.success) throw new Error("Web3Forms email delivery failed.");
+
+                // 4. Save to Submissions Table
                 const { error: dbError } = await supabaseClient
                     .from('submissions')
                     .insert([{
@@ -249,13 +298,13 @@ function initSupabase() {
 
                 // SUCCESS
                 msg.textContent = "Submission successful! Redirecting...";
-                msg.className = "p-4 rounded-xl text-sm font-medium bg-[#00ff8810] text-[#00ff88] block";
+                msg.className = "p-4 rounded-xl text-sm font-medium bg-[#00ff8810] text-[#00ff88] block border border-[#00ff88]/30";
                 setTimeout(() => window.location.href = '/', 2000);
 
             } catch (error) {
-                console.error(error);
+                console.error("Submission Error:", error);
                 msg.textContent = "Error: " + error.message;
-                msg.className = "p-4 rounded-xl text-sm font-medium bg-red-500/10 text-red-500 block";
+                msg.className = "p-4 rounded-xl text-sm font-medium bg-red-500/10 text-red-500 block border border-red-500/30";
                 btn.disabled = false;
                 btn.textContent = "Submit Research";
             }
