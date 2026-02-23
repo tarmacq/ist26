@@ -169,7 +169,7 @@
             <div class="hidden lg:flex gap-8 text-[10px] uppercase tracking-[0.3em] font-medium text-zinc-400">
                 <a href="#about" class="hover:text-white transition">Concept</a>
                 <a href="#axes" class="hover:text-white transition">Focus Areas</a>
-                <a href="#submission" class="hover:text-white transition">Submit</a>
+                <a href="submit" class="hover:text-white transition">Submit</a>
             </div>
             
             <div id="auth-container">
@@ -390,7 +390,7 @@
         async function handleSubmissionClick() {
             if(!supabaseClient) {
                 // Fallback if supabase isn't loaded yet
-                window.location.href = 'https://auth.tarmacq.com/distribution/services/ist.tarmacq.com?page=submit';
+                window.location.href = 'https://auth.tarmacq.com/distribution/services/ist.tarmacq.com&page=submit';
                 return;
             }
 
