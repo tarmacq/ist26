@@ -202,7 +202,7 @@
             const { data: { session }, error } = await supabaseClient.auth.getSession();
             
             if (error || !session) {
-                window.location.href = 'https://auth.tarmacq.com/distribution/services/ist.tarmacq.com?page=submit';
+                window.location.href = 'https://auth.tarmacq.com/distribution/services/ist.tarmacq.com&page=submit';
                 return;
             }
             currentUser = session.user;
